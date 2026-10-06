@@ -1,6 +1,7 @@
 """Telegram botu ile mesaj gönderir."""
 
 from getpass import getpass
+import sys
 import requests
 
 
@@ -26,7 +27,12 @@ def mesaj_gonder(token, chat_id, mesaj):
 
 
 def main():
-    token = getpass("Bot tokenı (gizli): ").strip()
+    print("Telegram mesaj gönderimi", flush=True)
+    if sys.stdin.isatty():
+        token = getpass("Bot tokenı (gizli): ").strip()
+    else:
+        print("Bu konsolda bot tokenı yazarken görünür olacaktır.", flush=True)
+        token = input("Bot tokenı: ").strip()
     chat_id = input("Alıcı sohbet ID'si: ").strip()
     mesaj = input("Gönderilecek mesaj: ").strip()
 
