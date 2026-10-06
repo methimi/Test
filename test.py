@@ -1,33 +1,44 @@
-"""GitHub'dan indirilen script için ek kütüphane örneği."""
+"""Telegram botu ile mesaj gönderir."""
 
-import pandas as pd
+from getpass import getpass
 import requests
 
 
+def mesaj_gonder(token, chat_id, mesaj):
+    try:
+        yanit = requests.post(
+            f"https://api.telegram.org/bot{token}/sendMessage",
+            json={"chat_id": chat_id, "text": mesaj},
+            timeout=30,
+        )
+    except requests.RequestException:
+        # Hata URL'si token içerebilir; ekrana yazdırma.
+        raise RuntimeError("Telegram bağlantısı kurulamadı veya zaman aşımına uğradı.") from None
+
+    try:
+        sonuc = yanit.json()
+    except ValueError:
+        raise RuntimeError(f"Geçersiz Telegram yanıtı (HTTP {yanit.status_code}).") from None
+
+    if not yanit.ok or not sonuc.get("ok"):
+        raise RuntimeError(sonuc.get("description", "Mesaj gönderilemedi."))
+    return sonuc["result"]["message_id"]
+
+
 def main():
-    # requests ile bir HTTP isteği hazırla; bu örnek ağ bağlantısı yapmaz.
-    istek = requests.Request(
-        "GET",
-        "https://raw.githubusercontent.com/methimi/Test/main/test.py",
-        params={"ornek": "kutuphane"},
-    ).prepare()
-    print(f"requests sürümü: {requests.__version__}")
-    print(f"Hazırlanan istek: {istek.method} {istek.url}")
+    token = getpass("Bot tokenı (gizli): ").strip()
+    chat_id = input("Alıcı sohbet ID'si: ").strip()
+    mesaj = input("Gönderilecek mesaj: ").strip()
 
-    # pandas ile örnek satışların toplam tutarını hesapla.
-    satislar = pd.DataFrame(
-        {
-            "urun": ["Kalem", "Defter", "Kalem", "Defter"],
-            "adet": [3, 2, 5, 1],
-            "birim_fiyat": [10, 40, 10, 40],
-        }
-    )
-    satislar["tutar"] = satislar["adet"] * satislar["birim_fiyat"]
-    ozet = satislar.groupby("urun", as_index=False)[["adet", "tutar"]].sum()
+    if not token or not chat_id or not mesaj:
+        print("Bot tokenı, sohbet ID'si ve mesaj boş bırakılamaz.")
+        return
 
-    print(f"\npandas sürümü: {pd.__version__}")
-    print(ozet.to_string(index=False))
-    print(f"\nToplam satış: {satislar['tutar'].sum()} TL")
+    try:
+        mesaj_id = mesaj_gonder(token, chat_id, mesaj)
+        print(f"Mesaj gönderildi. Mesaj ID: {mesaj_id}")
+    except RuntimeError as hata:
+        print(f"Hata: {hata}")
 
 
 if __name__ == "__main__":
