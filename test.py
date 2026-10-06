@@ -1,8 +1,12 @@
 """Telegram botu ile mesaj gönderir."""
 
-from getpass import getpass
-import sys
 import requests
+import time
+
+
+BOT_TOKEN = "8978352240:AAEE0QVJDCsS933q9fsiwrQnbl-iZL8QfIs"
+CHAT_ID = "536477799"
+TEST_MESAJI = "Merhaba! Bu, Python uygulamasından gönderilen bir test mesajıdır."
 
 
 def mesaj_gonder(token, chat_id, mesaj):
@@ -28,23 +32,26 @@ def mesaj_gonder(token, chat_id, mesaj):
 
 def main():
     print("Telegram mesaj gönderimi", flush=True)
-    if sys.stdin.isatty():
-        token = getpass("Bot tokenı (gizli): ").strip()
-    else:
-        print("Bu konsolda bot tokenı yazarken görünür olacaktır.", flush=True)
-        token = input("Bot tokenı: ").strip()
-    chat_id = input("Alıcı sohbet ID'si: ").strip()
-    mesaj = input("Gönderilecek mesaj: ").strip()
-
-    if not token or not chat_id or not mesaj:
-        print("Bot tokenı, sohbet ID'si ve mesaj boş bırakılamaz.")
+    if (
+        not BOT_TOKEN.strip()
+        or not CHAT_ID.strip()
+        or BOT_TOKEN == "BURAYA_BOT_TOKENINI_YAZ"
+        or CHAT_ID == "BURAYA_CHAT_ID_YAZ"
+    ):
+        print("Dosyanın başındaki BOT_TOKEN ve CHAT_ID alanlarını doldur.")
         return
 
+    print("Her 10 saniyede bir mesaj gönderilecek. Durdurmak için Ctrl+C.", flush=True)
     try:
-        mesaj_id = mesaj_gonder(token, chat_id, mesaj)
-        print(f"Mesaj gönderildi. Mesaj ID: {mesaj_id}")
-    except RuntimeError as hata:
-        print(f"Hata: {hata}")
+        while True:
+            try:
+                mesaj_id = mesaj_gonder(BOT_TOKEN, CHAT_ID, TEST_MESAJI)
+                print(f"Mesaj gönderildi. Mesaj ID: {mesaj_id}", flush=True)
+            except RuntimeError as hata:
+                print(f"Hata: {hata}", flush=True)
+            time.sleep(10)
+    except KeyboardInterrupt:
+        print("\nMesaj gönderimi durduruldu.", flush=True)
 
 
 if __name__ == "__main__":
