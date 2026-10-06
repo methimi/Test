@@ -42,11 +42,14 @@ def main():
         return
 
     print("Her 10 saniyede bir mesaj gönderilecek. Durdurmak için Ctrl+C.", flush=True)
+    sayac = 1
     try:
         while True:
             try:
-                mesaj_id = mesaj_gonder(BOT_TOKEN, CHAT_ID, TEST_MESAJI)
-                print(f"Mesaj gönderildi. Mesaj ID: {mesaj_id}", flush=True)
+                mesaj = f"{sayac}. {TEST_MESAJI}"
+                mesaj_id = mesaj_gonder(BOT_TOKEN, CHAT_ID, mesaj)
+                print(f"{sayac}. mesaj gönderildi. Mesaj ID: {mesaj_id}", flush=True)
+                sayac += 1
             except RuntimeError as hata:
                 print(f"Hata: {hata}", flush=True)
             time.sleep(10)
